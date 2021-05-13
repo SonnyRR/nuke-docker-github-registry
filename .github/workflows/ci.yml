@@ -1,0 +1,20 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Run NUKE Docker Image Publish Target
+        run: ./build.sh PublishDockerImage --configuration Release
+        env:
+          GitHubPersonalAccessToken: ${{ secrets.GITHUB_TOKEN }}
+          GitHubUsername: ${{ secrets.USERNAME }}
