@@ -16,5 +16,5 @@ jobs:
       - name: Run NUKE Docker Image Publish Target
         run: ./build.sh
         env:
-          GitHubPersonalAccessToken: ${{ secrets.GITHUB_TOKEN }}
+          GitHubPersonalAccessToken: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           GitHubUsername: ${{ secrets.USERNAME }}
