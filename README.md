@@ -4,5 +4,5 @@ This is a simple project utilizing the NUKE automated build system and Docker th
 
 For testing purposes the image that is used is alpine linux + git as it's small enough for the purpose.
 
-Checkout NUKE:
+Check out NUKE:
 https://github.com/nuke-build/nuke
