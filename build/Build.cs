@@ -31,9 +31,9 @@ class Build : NukeBuild
             () => GitHubUsername)
         .Executes(() =>
         {
-            DockerPull(c => c.SetName(ImageName));
+            DockerPull(settings => settings.SetName(ImageName));
 
-            DockerLogin(cfg => cfg
+            DockerLogin(settings => settings
                 .SetServer(GitHubImageRegistry)
                 .SetUsername(GitHubUsername)
                 .SetPassword(GitHubPersonalAccessToken)
