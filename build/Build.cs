@@ -1,44 +1,52 @@
-using System;
-using System.Linq;
 using Nuke.Common;
-using Nuke.Common.CI;
-using Nuke.Common.Execution;
-using Nuke.Common.IO;
-using Nuke.Common.ProjectModel;
+using Nuke.Common.Git;
 using Nuke.Common.Tooling;
-using Nuke.Common.Utilities.Collections;
-using static Nuke.Common.EnvironmentInfo;
-using static Nuke.Common.IO.FileSystemTasks;
-using static Nuke.Common.IO.PathConstruction;
+using Nuke.Common.Tools.Docker;
+using Nuke.Common.Tools.DotNet;
+using Nuke.Common.Tools.GitVersion;
+using Nuke.GitHub;
+using static Nuke.Common.Tools.Docker.DockerTasks;
+using static Nuke.GitHub.GitHubTasks;
 
 class Build : NukeBuild
 {
-    /// Support plugins are available for:
-    ///   - JetBrains ReSharper        https://nuke.build/resharper
-    ///   - JetBrains Rider            https://nuke.build/rider
-    ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
-    ///   - Microsoft VSCode           https://nuke.build/vscode
+    public static int Main() => Execute<Build>(b => b.PushImageToGitHubRegistry);
 
-    public static int Main () => Execute<Build>(x => x.Compile);
+    [GitRepository]
+    readonly GitRepository GitRepository;
 
-    [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
-    readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
+    [Parameter("The PAT used in order to push the Docker image to the container registry as an owner of the repository")]
+    readonly string GitHubPersonalAccessToken;
 
-    Target Clean => _ => _
-        .Before(Restore)
+    [Parameter("The GitHub user account that will be used to push the Docker image to the container registry")]
+    readonly string GitHubUsername;
+
+    readonly string GitHubImageRegistry = "docker.pkg.github.com";
+
+    readonly string ImageName = "alpine/git";
+
+    Target PushImageToGitHubRegistry => _ => _
+        .Requires(
+            () => GitHubPersonalAccessToken,
+            () => GitHubUsername)
         .Executes(() =>
         {
-        });
+            DockerPull(c => c.SetName(ImageName));
 
-    Target Restore => _ => _
-        .Executes(() =>
-        {
-        });
+            DockerLogin(cfg => cfg
+                .SetServer(GitHubImageRegistry)
+                .SetUsername(GitHubUsername)
+                .SetPassword(GitHubPersonalAccessToken)
+                .DisableProcessLogOutput());
 
-    Target Compile => _ => _
-        .DependsOn(Restore)
-        .Executes(() =>
-        {
+            var (repositoryOwner, repositoryName) = GetGitHubRepositoryInfo(GitRepository);
+            var targetImageName = $"{GitHubImageRegistry}/{repositoryOwner.ToLowerInvariant()}/{repositoryName}/alpine-git:nuke";
+
+            DockerTag(settings => settings
+                .SetSourceImage(ImageName)
+                .SetTargetImage(targetImageName));
+
+            DockerPush(settings => settings.SetName(targetImageName));
         });
 
 }
