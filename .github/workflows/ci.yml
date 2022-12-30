@@ -4,19 +4,43 @@ on:
   push:
     branches:
       - main
+  
   pull_request:
-    types: [opened, synchronize] 
+    types: [opened, synchronize]
+  
+  workflow_dispatch:
 
 jobs:
-  publish:
+  publish-built-in:
+    name: Publish API docker image with built-in container support
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Run NUKE Docker Image Publish Target
-        run: ./build.sh
+      - name: Build API image with built-in container support
+        run: ./build.sh BuildApiImageWithBuiltInContainerSupport
+        
+      - name: Publish image to GitHub container registry
+        run: ./build.sh PushImageToGitHubRegistry --ImageName magic-8-ball-api:built-in
+        env:
+          GitHubPersonalAccessToken: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          GitHubUsername: ${{ secrets.USERNAME }}
+          
+  publish-dockerfile:
+    name: Publish API docker image built with Dockerfile
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build API image with Dockerfile
+        run: ./build.sh BuildApiImageWithDockerfile
+
+      - name: Publish image to GitHub container registry
+        run: ./build.sh PushImageToGitHubRegistry
         env:
           GitHubPersonalAccessToken: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           GitHubUsername: ${{ secrets.USERNAME }}
