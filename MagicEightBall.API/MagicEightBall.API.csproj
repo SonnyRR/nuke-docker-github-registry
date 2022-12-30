@@ -7,7 +7,7 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:7.0</ContainerBaseImage>
         <ContainerImageName>magic-8-ball-api</ContainerImageName>
-        <ContainerImageTag>latest</ContainerImageTag>
+        <ContainerImageTag>built-in</ContainerImageTag>
     </PropertyGroup>
     
     <ItemGroup>
