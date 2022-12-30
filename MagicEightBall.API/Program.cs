@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
@@ -15,6 +17,12 @@ builder.Services.Configure<RouteOptions>(options =>
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddHttpLogging(logging =>
+{
+    logging.LoggingFields = HttpLoggingFields.All;
+});
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -22,7 +30,6 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Title = "Magic 8-Ball API",
         Description = "An ASP.NET Core Web API for answering questions via an 8-Ball like mechanism.",
-        TermsOfService = new Uri("https://localhost"),
         Contact = new OpenApiContact
         {
             Name = "Vasil Kotsev",
@@ -41,7 +48,9 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+app.UseHttpLogging();
 app.UseSwagger();
+app.UseRewriter(new RewriteOptions().AddRewrite("^$", "swagger", true));
 app.UseSwaggerUI();
 app.MapControllers();
 app.Run();

@@ -11,8 +11,7 @@ namespace MagicEightBall.API.Controllers;
 [Route("/api/[controller]")]
 public class QuestionController : ControllerBase
 {
-    private static readonly string[] PossibleAnswers = new[] 
-    {
+    private static readonly string[] PossibleAnswers = {
         "As I see it, yes.",
         "Ask again later.",
         "Better not tell you now.",
