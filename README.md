@@ -10,7 +10,7 @@ https://github.com/nuke-build/nuke
 ℹ The sample API used in this repo is a `.NET 7 WebAPI` project utilizing the newly introduced `built-in container support`. I've also included a `dockerfile` which is also utilized in the `CI` pipeline. It's a magic 8-ball, that when prompted with a yes/no question will give you a random answer.
 
 ## NUKE Build Project
-🔨 The automated build project contains the necessary targets to `clean`, `restore`, `compile` & `build` the docker images. You can view the target definitions in the `Build.cs` file and use it as a reference for your projects.
+🔨 The automated build project contains the necessary targets to `clean`, `restore`, `compile`, `build` and `publish` the docker images. You can view the target definitions in the `Build.cs` file and use it as a reference for your projects.
 
 ## CI Pipeline
 📦 The artifacts produced by the `GitHub Actions` CI pipeline are two images with different tags. One of the images is built with the traditional `Dockerfile`, while the other one utilizes the newly introduced `built-in container support` via the `Microsoft.NET.Build.Containers` NuGet package.
