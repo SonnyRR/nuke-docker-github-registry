@@ -70,5 +70,5 @@ docker rm m8b
 
 # To delete the image
 docker rmi magic-8-ball-api:dockerfile
-docker rmi m8b magic-8-ball-api:built-in 
+docker rmi magic-8-ball-api:built-in 
 ```
