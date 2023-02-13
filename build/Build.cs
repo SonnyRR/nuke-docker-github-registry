@@ -5,6 +5,8 @@ using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.Docker;
 using Nuke.Common.Tools.DotNet;
+using Nuke.Common.Tools.GitVersion;
+using Serilog;
 using static Nuke.Common.Tools.Docker.DockerTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using static Nuke.GitHub.GitHubTasks;
@@ -14,15 +16,18 @@ class Build : NukeBuild
     public Build()
     {
         // Redirect output from STERR to STDOUT.
-        DockerLogger = (_, message) => Serilog.Log.Debug(message);
+        DockerLogger = (_, message) => Log.Debug(message);
     }
     public static int Main() => Execute<Build>(b => b.Compile);
 
+    [Solution("NukeSandbox.sln", SuppressBuildProjectCheck = true)]
+    readonly Solution Solution;
+    
     [GitRepository]
     readonly GitRepository GitRepository;
     
-    [Solution("NukeSandbox.sln", SuppressBuildProjectCheck = true)]
-    readonly Solution Solution;
+    [GitVersion(Framework = "net6.0", UpdateBuildNumber = true)] 
+    readonly GitVersion GitVersion;
     
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
@@ -60,7 +65,12 @@ class Build : NukeBuild
             DotNetBuild(s => s
                 .SetProjectFile(Solution)
                 .SetConfiguration(Configuration)
+                .SetAssemblyVersion(GitVersion.AssemblySemVer)
+                .SetFileVersion(GitVersion.AssemblySemFileVer)
+                .SetInformationalVersion(GitVersion.InformationalVersion)
                 .EnableNoRestore());
+
+            Log.Information("Current semver: {version}",GitVersion.MajorMinorPatch);
         });
     
     Target BuildApiImageWithBuiltInContainerSupport => _ => _
@@ -93,6 +103,7 @@ class Build : NukeBuild
             () => GitHubPersonalAccessToken,
             () => GitHubUsername,
             () => ImageName)
+        .OnlyWhenDynamic(() => GitRepository.IsOnMasterBranch())
         .Executes(() =>
         {
             DockerLogin(settings => settings
@@ -108,6 +119,10 @@ class Build : NukeBuild
             DockerTag(settings => settings
                 .SetSourceImage(ImageName)
                 .SetTargetImage(targetImageName));
+            
+            DockerTag(settings => settings
+                .SetSourceImage(ImageName)
+                .SetTargetImage(targetImageName + '-' + GitVersion.MajorMinorPatch));
 
             DockerPush(settings => settings.SetName(targetImageName));
         });
