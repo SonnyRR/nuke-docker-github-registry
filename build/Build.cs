@@ -11,6 +11,7 @@ using Serilog;
 using Polly;
 using static Nuke.Common.Tools.Docker.DockerTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
+using static Nuke.Common.Tools.Git.GitTasks;
 using static Nuke.GitHub.GitHubTasks;
 
 class Build : NukeBuild
@@ -40,6 +41,10 @@ class Build : NukeBuild
 
     [Parameter("The GitHub user account that will be used to push the Docker image to the container registry")]
     readonly string GitHubUsername;
+
+    [Parameter("The git author username, used for tagging release commits.")] readonly string GitAuthorUsername;
+
+    [Parameter("The git author email, used for tagging release commits.")] readonly string GitAuthorEmail;
 
     [Parameter("The docker image name.")] readonly string ImageName = "magic-8-ball-api:dockerfile";
 
@@ -102,6 +107,7 @@ class Build : NukeBuild
             () => GitHubUsername,
             () => ImageName)
         .OnlyWhenDynamic(() => GitRepository.IsOnMainOrMasterBranch())
+        .Triggers(TagReleaseCommit)
         .Executes(() =>
         {
             Policy
@@ -134,5 +140,19 @@ class Build : NukeBuild
 
             DockerPush(settings => settings.SetName(targetImageName));
             DockerPush(settings => settings.SetName(tagWithSemver));
+        });
+
+    Target TagReleaseCommit => _ => _
+        .DependsOn(PushImageToGitHubRegistry)
+        .Requires(
+            () => GitAuthorEmail,
+            () => GitAuthorUsername)
+        .Executes(() =>
+        {
+            Git($"config --global user.email \"{GitAuthorEmail}\"");
+            Git($"config --global user.name \"{GitAuthorUsername}\"");
+            
+            Git($"tag -a {GitVersion.FullSemVer} -m \"Release: '{GitVersion.FullSemVer}'\"");
+            Git($"push --follow-tags");
         });
 }

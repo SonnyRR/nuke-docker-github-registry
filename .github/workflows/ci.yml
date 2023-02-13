@@ -9,6 +9,12 @@ on:
     types: [opened, synchronize]
   
   workflow_dispatch:
+    
+env:
+  GitHubPersonalAccessToken: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+  GitHubUsername: ${{ secrets.USERNAME }}
+  GitAuthorUsername: 'Vasil Kotsev'
+  GitAuthorEmail: '9307969+SonnyRR@users.noreply.github.com'
 
 jobs:
   publish-built-in:
@@ -26,9 +32,6 @@ jobs:
         
       - name: Publish image to GitHub container registry
         run: ./build.sh PushImageToGitHubRegistry --ImageName magic-8-ball-api:built-in
-        env:
-          GitHubPersonalAccessToken: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          GitHubUsername: ${{ secrets.USERNAME }}
           
   publish-dockerfile:
     name: Publish API docker image built with Dockerfile
@@ -45,6 +48,3 @@ jobs:
 
       - name: Publish image to GitHub container registry
         run: ./build.sh PushImageToGitHubRegistry
-        env:
-          GitHubPersonalAccessToken: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          GitHubUsername: ${{ secrets.USERNAME }}

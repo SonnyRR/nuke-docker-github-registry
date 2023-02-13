@@ -20,7 +20,7 @@
         },
         "GitHubPersonalAccessToken": {
           "type": "string",
-          "description": "The PAT used in order to push the Docker image to the container registry as an owner of the repository"
+          "description": "The PAT used in order to push the Docker image to the container registry"
         },
         "GitHubUsername": {
           "type": "string",
@@ -89,7 +89,8 @@
               "Clean",
               "Compile",
               "PushImageToGitHubRegistry",
-              "Restore"
+              "Restore",
+              "Testing"
             ]
           }
         },
@@ -108,7 +109,8 @@
               "Clean",
               "Compile",
               "PushImageToGitHubRegistry",
-              "Restore"
+              "Restore",
+              "Testing"
             ]
           }
         },
