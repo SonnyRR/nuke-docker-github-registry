@@ -15,6 +15,9 @@ using static Nuke.GitHub.GitHubTasks;
 
 class Build : NukeBuild
 {
+    const string ApiAssemblyName = "MagicEightBall.API";
+    const string GitHubImageRegistry = "docker.pkg.github.com";
+
     public Build()
     {
         // Redirect output from STERR to STDOUT.
@@ -32,18 +35,13 @@ class Build : NukeBuild
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
-    [Parameter(
-        "The PAT used in order to push the Docker image to the container registry as an owner of the repository")]
+    [Parameter("The PAT used in order to push the Docker image to the container registry")]
     readonly string GitHubPersonalAccessToken;
 
     [Parameter("The GitHub user account that will be used to push the Docker image to the container registry")]
     readonly string GitHubUsername;
 
-    readonly string GitHubImageRegistry = "docker.pkg.github.com";
-
     [Parameter("The docker image name.")] readonly string ImageName = "magic-8-ball-api:dockerfile";
-
-    static readonly string ApiAssemblyName = "MagicEightBall.API";
 
     readonly AbsolutePath ApiProject = RootDirectory / ApiAssemblyName;
 
