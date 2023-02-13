@@ -1,3 +1,4 @@
+using System;
 using Nuke.Common;
 using Nuke.Common.Git;
 using Nuke.Common.IO;
@@ -7,6 +8,7 @@ using Nuke.Common.Tools.Docker;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Serilog;
+using Polly;
 using static Nuke.Common.Tools.Docker.DockerTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using static Nuke.GitHub.GitHubTasks;
@@ -18,21 +20,20 @@ class Build : NukeBuild
         // Redirect output from STERR to STDOUT.
         DockerLogger = (_, message) => Log.Debug(message);
     }
+
     public static int Main() => Execute<Build>(b => b.Compile);
 
-    [Solution("NukeSandbox.sln", SuppressBuildProjectCheck = true)]
-    readonly Solution Solution;
-    
-    [GitRepository]
-    readonly GitRepository GitRepository;
-    
-    [GitVersion(Framework = "net6.0", UpdateBuildNumber = true)] 
-    readonly GitVersion GitVersion;
-    
+    [Solution("NukeSandbox.sln", SuppressBuildProjectCheck = true)] readonly Solution Solution;
+
+    [GitRepository] readonly GitRepository GitRepository;
+
+    [GitVersion(Framework = "net6.0", UpdateBuildNumber = true)] readonly GitVersion GitVersion;
+
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
-    [Parameter("The PAT used in order to push the Docker image to the container registry as an owner of the repository")]
+    [Parameter(
+        "The PAT used in order to push the Docker image to the container registry as an owner of the repository")]
     readonly string GitHubPersonalAccessToken;
 
     [Parameter("The GitHub user account that will be used to push the Docker image to the container registry")]
@@ -40,17 +41,16 @@ class Build : NukeBuild
 
     readonly string GitHubImageRegistry = "docker.pkg.github.com";
 
-    [Parameter("The docker image name.")]
-    readonly string ImageName = "magic-8-ball-api:dockerfile";
+    [Parameter("The docker image name.")] readonly string ImageName = "magic-8-ball-api:dockerfile";
 
     static readonly string ApiAssemblyName = "MagicEightBall.API";
-    
+
     readonly AbsolutePath ApiProject = RootDirectory / ApiAssemblyName;
 
     Target Clean => _ => _
         .Before(Restore)
         .Executes(() => DotNetClean(c => c.SetProject(ApiAssemblyName)));
-    
+
     Target Restore => _ => _
         .Executes(() =>
         {
@@ -70,9 +70,9 @@ class Build : NukeBuild
                 .SetInformationalVersion(GitVersion.InformationalVersion)
                 .EnableNoRestore());
 
-            Log.Information("Current semver: {version}",GitVersion.MajorMinorPatch);
+            Log.Information("Current semver: {version}", GitVersion.MajorMinorPatch);
         });
-    
+
     Target BuildApiImageWithBuiltInContainerSupport => _ => _
         .DependsOn(Compile)
         .Executes(() =>
@@ -85,7 +85,7 @@ class Build : NukeBuild
                 .SetConfiguration("Debug")
                 .SetPublishProfile("DefaultContainer"));
         });
-    
+
     Target BuildApiImageWithDockerfile => _ => _
         .DependsOn(Compile)
         .Executes(() =>
@@ -106,11 +106,20 @@ class Build : NukeBuild
         .OnlyWhenDynamic(() => GitRepository.IsOnMainOrMasterBranch())
         .Executes(() =>
         {
-            DockerLogin(settings => settings
-                .SetServer(GitHubImageRegistry)
-                .SetUsername(GitHubUsername)
-                .SetPassword(GitHubPersonalAccessToken)
-                .DisableProcessLogOutput());
+            Policy
+                .Handle<Exception>()
+                .WaitAndRetry(5,
+                    retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    (ex, timeSpan, retryCount, context) =>
+                    {
+                        Log.Warning($"Docker login exited with code: '{ex}'");
+                        Log.Information($"Attempting to login into GitHub Docker image registry. Try #{retryCount}");
+                    })
+                .Execute(() => DockerLogin(settings => settings
+                    .SetServer(GitHubImageRegistry)
+                    .SetUsername(GitHubUsername)
+                    .SetPassword(GitHubPersonalAccessToken)
+                    .DisableProcessLogOutput()));
 
             var (repositoryOwner, repositoryName) = GetGitHubRepositoryInfo(GitRepository);
             var targetImageName =
@@ -119,8 +128,8 @@ class Build : NukeBuild
             DockerTag(settings => settings
                 .SetSourceImage(ImageName)
                 .SetTargetImage(targetImageName));
-            
-            var tagWithSemver = targetImageName + '-' + GitVersion.MajorMinorPatch; 
+
+            var tagWithSemver = targetImageName + '-' + GitVersion.MajorMinorPatch;
             DockerTag(settings => settings
                 .SetSourceImage(ImageName)
                 .SetTargetImage(tagWithSemver));
