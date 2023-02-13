@@ -21,8 +21,9 @@ class Build : NukeBuild
 
     public Build()
     {
-        // Redirect output from STERR to STDOUT.
+        // Redirect output from STDERR to STDOUT.
         DockerLogger = (_, message) => Log.Debug(message);
+        GitLogger = (_, message) => Log.Debug(message);
     }
 
     public static int Main() => Execute<Build>(b => b.Compile);
