@@ -103,7 +103,7 @@ class Build : NukeBuild
             () => GitHubPersonalAccessToken,
             () => GitHubUsername,
             () => ImageName)
-        .OnlyWhenDynamic(() => GitRepository.IsOnMasterBranch())
+        .OnlyWhenDynamic(() => GitRepository.IsOnMainOrMasterBranch())
         .Executes(() =>
         {
             DockerLogin(settings => settings
