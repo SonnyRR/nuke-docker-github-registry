@@ -120,10 +120,12 @@ class Build : NukeBuild
                 .SetSourceImage(ImageName)
                 .SetTargetImage(targetImageName));
             
+            var tagWithSemver = targetImageName + '-' + GitVersion.MajorMinorPatch; 
             DockerTag(settings => settings
                 .SetSourceImage(ImageName)
-                .SetTargetImage(targetImageName + '-' + GitVersion.MajorMinorPatch));
+                .SetTargetImage(tagWithSemver));
 
             DockerPush(settings => settings.SetName(targetImageName));
+            DockerPush(settings => settings.SetName(tagWithSemver));
         });
 }
