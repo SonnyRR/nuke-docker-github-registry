@@ -4,9 +4,9 @@ EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["MagicEightBall.API/MagicEightBall.API.csproj", "MagicEightBall.API/"]
+COPY ["src/MagicEightBall.API/MagicEightBall.API.csproj", "MagicEightBall.API/"]
 RUN dotnet restore "MagicEightBall.API/MagicEightBall.API.csproj"
-COPY . .
+COPY /src .
 WORKDIR "/src/MagicEightBall.API"
 RUN dotnet build "MagicEightBall.API.csproj" -c Release -o /app/build
 
