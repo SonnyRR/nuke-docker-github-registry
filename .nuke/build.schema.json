@@ -18,6 +18,14 @@
           "type": "boolean",
           "description": "Indicates to continue a previously failed build attempt"
         },
+        "GitAuthorEmail": {
+          "type": "string",
+          "description": "The git author email, used for tagging release commits"
+        },
+        "GitAuthorUsername": {
+          "type": "string",
+          "description": "The git author username, used for tagging release commits"
+        },
         "GitHubPersonalAccessToken": {
           "type": "string",
           "description": "The PAT used in order to push the Docker image to the container registry"
@@ -90,7 +98,7 @@
               "Compile",
               "PushImageToGitHubRegistry",
               "Restore",
-              "Testing"
+              "TagReleaseCommit"
             ]
           }
         },
@@ -110,7 +118,7 @@
               "Compile",
               "PushImageToGitHubRegistry",
               "Restore",
-              "Testing"
+              "TagReleaseCommit"
             ]
           }
         },

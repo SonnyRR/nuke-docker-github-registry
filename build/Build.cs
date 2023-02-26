@@ -49,11 +49,11 @@ class Build : NukeBuild
 
     [Parameter("The docker image name.")] readonly string ImageName = "magic-8-ball-api:dockerfile";
 
-    readonly AbsolutePath ApiProject = RootDirectory / ApiAssemblyName;
+    readonly AbsolutePath ApiProject = RootDirectory / "src" / ApiAssemblyName;
 
     Target Clean => _ => _
         .Before(Restore)
-        .Executes(() => DotNetClean(c => c.SetProject(ApiAssemblyName)));
+        .Executes(() => DotNetClean(c => c.SetProject(ApiProject)));
 
     Target Restore => _ => _
         .Executes(() =>

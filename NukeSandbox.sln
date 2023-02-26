@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.31229.75
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "build\_build.csproj", "{CBCC9FEB-5467-40BC-8C21-627577C03B24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicEightBall.API", "MagicEightBall.API\MagicEightBall.API.csproj", "{FFE9000C-339A-4008-A058-7D35A7A8BDC2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicEightBall.API", "src\MagicEightBall.API\MagicEightBall.API.csproj", "{4BF44405-3CF4-4879-BE78-652137461B5A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{CBCC9FEB-5467-40BC-8C21-627577C03B24}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CBCC9FEB-5467-40BC-8C21-627577C03B24}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CBCC9FEB-5467-40BC-8C21-627577C03B24}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FFE9000C-339A-4008-A058-7D35A7A8BDC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FFE9000C-339A-4008-A058-7D35A7A8BDC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FFE9000C-339A-4008-A058-7D35A7A8BDC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FFE9000C-339A-4008-A058-7D35A7A8BDC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BF44405-3CF4-4879-BE78-652137461B5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BF44405-3CF4-4879-BE78-652137461B5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BF44405-3CF4-4879-BE78-652137461B5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BF44405-3CF4-4879-BE78-652137461B5A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
