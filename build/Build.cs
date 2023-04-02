@@ -145,6 +145,7 @@ class Build : NukeBuild
 
     Target TagReleaseCommit => _ => _
         .DependsOn(PushImageToGitHubRegistry)
+        .OnlyWhenDynamic(() => GitRepository.IsOnMainOrMasterBranch())
         .Requires(
             () => GitAuthorEmail,
             () => GitAuthorUsername)
