@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Nuke.Common;
 using Nuke.Common.Git;
 using Nuke.Common.IO;
@@ -7,12 +8,12 @@ using Nuke.Common.Tooling;
 using Nuke.Common.Tools.Docker;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
-using Serilog;
 using Polly;
+using Serilog;
 using static Nuke.Common.Tools.Docker.DockerTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using static Nuke.Common.Tools.Git.GitTasks;
-using static Nuke.GitHub.GitHubTasks;
+using static Nuke.Common.Tools.GitHub.GitHubTasks;
 
 class Build : NukeBuild
 {
@@ -77,6 +78,8 @@ class Build : NukeBuild
             Log.Information("Current semver: {version}", GitVersion.MajorMinorPatch);
         });
 
+
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
     Target BuildApiImageWithBuiltInContainerSupport => _ => _
         .DependsOn(Compile)
         .Executes(() =>
@@ -90,6 +93,8 @@ class Build : NukeBuild
                 .SetPublishProfile("DefaultContainer"));
         });
 
+
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
     Target BuildApiImageWithDockerfile => _ => _
         .DependsOn(Compile)
         .Executes(() =>
@@ -115,7 +120,7 @@ class Build : NukeBuild
                 .Handle<Exception>()
                 .WaitAndRetry(5,
                     retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                    (ex, timeSpan, retryCount, context) =>
+                    (ex, _, retryCount, _) =>
                     {
                         Log.Warning($"Docker login exited with code: '{ex}'");
                         Log.Information($"Attempting to login into GitHub Docker image registry. Try #{retryCount}");
@@ -126,7 +131,8 @@ class Build : NukeBuild
                     .SetPassword(GitHubPersonalAccessToken)
                     .DisableProcessLogOutput()));
 
-            var (repositoryOwner, repositoryName) = GetGitHubRepositoryInfo(GitRepository);
+            var repositoryOwner = GitRepository.GetGitHubOwner();
+            var repositoryName = GitRepository.GetGitHubName();
             var targetImageName =
                 $"{GitHubImageRegistry}/{repositoryOwner.ToLowerInvariant()}/{repositoryName}/{ImageName}";
 
@@ -151,9 +157,9 @@ class Build : NukeBuild
             () => GitAuthorUsername)
         .Executes(() =>
         {
-            Git($"config --global user.email \"{GitAuthorEmail}\"");
-            Git($"config --global user.name \"{GitAuthorUsername}\"");
-            
+            Git($"config user.email \"{GitAuthorEmail}\"");
+            Git($"config user.name \"{GitAuthorUsername}\"");
+
             Git($"tag -a {GitVersion.FullSemVer} -m \"Release: '{GitVersion.FullSemVer}'\"");
             Git($"push --follow-tags");
         });
