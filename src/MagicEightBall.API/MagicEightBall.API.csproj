@@ -12,7 +12,7 @@
     
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.8" />
-        <PackageReference Include="Microsoft.NET.Build.Containers" Version="7.0.305" />
+        <PackageReference Include="Microsoft.NET.Build.Containers" Version="7.0.306" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     </ItemGroup>
 
