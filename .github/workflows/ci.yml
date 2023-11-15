@@ -27,6 +27,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.x.x
+
       - name: Build API image with built-in container support
         run: ./build.sh BuildApiImageWithBuiltInContainerSupport
         
@@ -42,6 +47,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.x.x
 
       - name: Build API image with Dockerfile
         run: ./build.sh BuildApiImageWithDockerfile
