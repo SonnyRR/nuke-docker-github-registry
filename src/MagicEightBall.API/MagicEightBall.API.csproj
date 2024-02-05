@@ -6,7 +6,7 @@
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:8.0</ContainerBaseImage>
-        <ContainerImageName>magic-8-ball-api</ContainerImageName>
+        <ContainerRepository>magic-8-ball-api</ContainerRepository>
         <ContainerImageTag>built-in</ContainerImageTag>
     </PropertyGroup>
     
