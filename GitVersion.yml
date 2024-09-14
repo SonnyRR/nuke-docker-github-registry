@@ -11,6 +11,7 @@ branches:
   feature:
     increment: Inherit
     mode: ManualDeployment
+    regex: (orign/)?feature
 ignore:
   sha: []
 merge-message-formats: {}
