@@ -33,7 +33,7 @@ class Build : NukeBuild
 
     [GitRepository] readonly GitRepository GitRepository;
 
-    [GitVersion(Framework = "net6.0", UpdateBuildNumber = true)] readonly GitVersion GitVersion;
+    [GitVersion(UpdateBuildNumber = true)] readonly GitVersion GitVersion;
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
