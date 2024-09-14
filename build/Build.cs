@@ -29,11 +29,14 @@ class Build : NukeBuild
 
     public static int Main() => Execute<Build>(b => b.Compile);
 
-    [Solution("NukeSandbox.sln", SuppressBuildProjectCheck = true)] readonly Solution Solution;
+    [Solution("NukeSandbox.sln", SuppressBuildProjectCheck = true)]
+    readonly Solution Solution;
 
-    [GitRepository] readonly GitRepository GitRepository;
+    [GitRepository]
+    readonly GitRepository GitRepository;
 
-    [GitVersion(UpdateBuildNumber = true)] readonly GitVersion GitVersion;
+    [GitVersion(UpdateBuildNumber = true)] 
+    readonly GitVersion GitVersion;
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
@@ -44,11 +47,14 @@ class Build : NukeBuild
     [Parameter("The GitHub user account that will be used to push the Docker image to the container registry")]
     readonly string GitHubUsername;
 
-    [Parameter("The git author username, used for tagging release commits.")] readonly string GitAuthorUsername;
+    [Parameter("The git author username, used for tagging release commits.")] 
+    readonly string GitAuthorUsername;
 
-    [Parameter("The git author email, used for tagging release commits.")] readonly string GitAuthorEmail;
+    [Parameter("The git author email, used for tagging release commits.")] 
+    readonly string GitAuthorEmail;
 
-    [Parameter("The docker image name.")] readonly string ImageName = "magic-8-ball-api:dockerfile";
+    [Parameter("The docker image name.")] 
+    readonly string ImageName = "magic-8-ball-api:dockerfile";
 
     readonly AbsolutePath ApiProject = RootDirectory / "src" / ApiAssemblyName;
 
