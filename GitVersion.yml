@@ -4,12 +4,12 @@ mode: ContinuousDelivery
 branches:
   main:
     regex: (origin/)?main
+    increment: Minor
   develop:
     increment: Patch
     label: beta
     regex: (origin/)?dev(elop)?(ment)?$
   feature:
-    increment: Inherit
     mode: ManualDeployment
     regex: (orign/)?feature
 ignore:
