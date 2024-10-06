@@ -8,6 +8,7 @@ using Nuke.Common.Tooling;
 using Nuke.Common.Tools.Docker;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
+using Nuke.Common.Tools.NerdbankGitVersioning;
 using Polly;
 using Serilog;
 using static Nuke.Common.Tools.Docker.DockerTasks;
@@ -35,8 +36,8 @@ class Build : NukeBuild
     [GitRepository]
     readonly GitRepository GitRepository;
 
-    [GitVersion(UpdateBuildNumber = true)] 
-    readonly GitVersion GitVersion;
+    [NerdbankGitVersioning(UpdateBuildNumber = true)]
+    readonly NerdbankGitVersioning Versioning;
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
@@ -76,12 +77,12 @@ class Build : NukeBuild
             DotNetBuild(s => s
                 .SetProjectFile(Solution)
                 .SetConfiguration(Configuration)
-                .SetAssemblyVersion(GitVersion.AssemblySemVer)
-                .SetFileVersion(GitVersion.AssemblySemFileVer)
-                .SetInformationalVersion(GitVersion.InformationalVersion)
+                .SetAssemblyVersion(Versioning.AssemblyVersion)
+                .SetFileVersion(Versioning.AssemblyFileVersion)
+                .SetInformationalVersion(Versioning.AssemblyInformationalVersion)
                 .EnableNoRestore());
 
-            Log.Information("Current semver: {version}", GitVersion.MajorMinorPatch);
+            Log.Information("Current semver: {@Version}", Versioning.SemVer1);
         });
 
 
@@ -128,8 +129,8 @@ class Build : NukeBuild
                     retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                     (ex, _, retryCount, _) =>
                     {
-                        Log.Warning($"Docker login exited with code: '{ex}'");
-                        Log.Information($"Attempting to login into GitHub Docker image registry. Try #{retryCount}");
+                        Log.Warning(ex, "Docker login exited.");
+                        Log.Information("Attempting to login into GitHub Docker image registry. Try #{@RetryCount}", retryCount);
                     })
                 .Execute(() => DockerLogin(settings => settings
                     .SetServer(GitHubImageRegistry)
@@ -146,7 +147,7 @@ class Build : NukeBuild
                 .SetSourceImage(ImageName)
                 .SetTargetImage(targetImageName));
 
-            var tagWithSemver = targetImageName + '-' + GitVersion.MajorMinorPatch;
+            var tagWithSemver = targetImageName + '-' + Versioning.SemVer1;
             DockerTag(settings => settings
                 .SetSourceImage(ImageName)
                 .SetTargetImage(tagWithSemver));
@@ -166,7 +167,7 @@ class Build : NukeBuild
             Git($"config user.email \"{GitAuthorEmail}\"");
             Git($"config user.name \"{GitAuthorUsername}\"");
 
-            Git($"tag -a {GitVersion.FullSemVer} -m \"Release: '{GitVersion.FullSemVer}'\"");
+            Git($"tag -a {Versioning.SemVer1} -m \"Release: '{Versioning.SemVer1}'\"");
             Git($"push --follow-tags");
         });
 }

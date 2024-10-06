@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.143" />
     <PackageReference Include="Nuke.Common" Version="8.1.1" />
     <PackageReference Include="Polly" Version="8.4.2" />
   </ItemGroup>
@@ -21,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageDownload Include="GitVersion.Tool" Version="[6.0.2]" />
+    <PackageDownload Include="nbgv" Version="[3.6.143]" />
   </ItemGroup>
 
 </Project>
