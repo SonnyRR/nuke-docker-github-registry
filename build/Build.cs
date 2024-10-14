@@ -74,7 +74,7 @@ class Build : NukeBuild
         .Executes(() =>
         {
             DotNetBuild(s => s
-                .SetProjectFile(Solution)
+                .SetProjectFile(ApiProject)
                 .SetConfiguration(Configuration)
                 .SetAssemblyVersion(GitVersion.AssemblySemVer)
                 .SetFileVersion(GitVersion.AssemblySemFileVer)
@@ -114,11 +114,11 @@ class Build : NukeBuild
         });
 
     Target PushImageToGitHubRegistry => _ => _
+        .OnlyWhenDynamic(() => GitRepository.IsOnMainOrMasterBranch())
         .Requires(
             () => GitHubPersonalAccessToken,
             () => GitHubUsername,
             () => ImageName)
-        .OnlyWhenDynamic(() => GitRepository.IsOnMainOrMasterBranch())
         .Triggers(TagReleaseCommit)
         .Executes(() =>
         {
