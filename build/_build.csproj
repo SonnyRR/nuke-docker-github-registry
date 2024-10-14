@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nuke.Common" Version="8.1.1" />
+    <PackageReference Include="Nuke.Common" Version="8.1.2" />
     <PackageReference Include="Polly" Version="8.4.2" />
   </ItemGroup>
 
