@@ -1,4 +1,4 @@
-name: Build, Create & Push Docker images to registry
+name: Build, Create & Push Docker images
 
 on:
   push:
