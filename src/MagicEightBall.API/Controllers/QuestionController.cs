@@ -23,7 +23,7 @@ public class QuestionController : ControllerBase
     };
 
     private readonly Random _randomGenerator;
-    
+
     /// <summary>
     /// Creates a new instance of a question answering API controller.
     /// </summary>

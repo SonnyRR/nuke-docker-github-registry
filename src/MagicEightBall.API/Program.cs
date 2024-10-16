@@ -10,21 +10,18 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.Configure<RouteOptions>(options =>
-{
-    options.LowercaseUrls = true;
-});
+builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddHttpLogging(logging =>
-{
-    logging.LoggingFields = HttpLoggingFields.All;
-});
+builder.Services.AddHttpLogging(logging => logging.LoggingFields = HttpLoggingFields.All);
 
 builder.Services.AddSwaggerGen(options =>
 {
+    string gitHubProfile = builder.Configuration["Links:GitHub"] ?? string.Empty;
+    string license = builder.Configuration["Links:License"] ?? string.Empty;
+
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
@@ -33,15 +30,15 @@ builder.Services.AddSwaggerGen(options =>
         Contact = new OpenApiContact
         {
             Name = "Vasil Kotsev",
-            Url = new Uri("https://github.com/SonnyRR")
+            Url = new Uri(gitHubProfile)
         },
         License = new OpenApiLicense
         {
             Name = "MIT License",
-            Url = new Uri("https://github.com/SonnyRR/nuke-docker-github-registry/blob/main/LICENSE")
+            Url = new Uri(license)
         }
     });
-    
+
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
@@ -53,4 +50,4 @@ app.UseSwagger();
 app.UseRewriter(new RewriteOptions().AddRewrite("^$", "swagger", true));
 app.UseSwaggerUI();
 app.MapControllers();
-app.Run();
+await app.RunAsync();
