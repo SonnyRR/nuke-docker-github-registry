@@ -1,4 +1,4 @@
-name: ci
+name: Build, Create & Push Docker images to registry
 
 on:
   push:
@@ -11,8 +11,8 @@ on:
   workflow_dispatch:
     
 env:
-  GitHubPersonalAccessToken: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-  GitHubUsername: ${{ secrets.USERNAME }}
+  GitHubPersonalAccessToken: ${{ secrets.PERSONAL_ACCESS_TOKEN || 'dependabot_placeholder_pat' }}
+  GitHubUsername: ${{ secrets.USERNAME || 'dependabot_placeholder_username' }}
   GitAuthorUsername: 'Vasil Kotsev'
   GitAuthorEmail: '9307969+SonnyRR@users.noreply.github.com'
 
