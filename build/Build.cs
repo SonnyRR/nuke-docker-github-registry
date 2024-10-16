@@ -35,7 +35,7 @@ class Build : NukeBuild
     [GitRepository]
     readonly GitRepository GitRepository;
 
-    [GitVersion(UpdateBuildNumber = true)] 
+    [GitVersion(UpdateBuildNumber = true)]
     readonly GitVersion GitVersion;
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
@@ -47,13 +47,13 @@ class Build : NukeBuild
     [Parameter("The GitHub user account that will be used to push the Docker image to the container registry")]
     readonly string GitHubUsername;
 
-    [Parameter("The git author username, used for tagging release commits.")] 
+    [Parameter("The git author username, used for tagging release commits.")]
     readonly string GitAuthorUsername;
 
-    [Parameter("The git author email, used for tagging release commits.")] 
+    [Parameter("The git author email, used for tagging release commits.")]
     readonly string GitAuthorEmail;
 
-    [Parameter("The docker image name.")] 
+    [Parameter("The docker image name.")]
     readonly string ImageName = "magic-8-ball-api:dockerfile";
 
     readonly AbsolutePath ApiProject = RootDirectory / "src" / ApiAssemblyName;
@@ -81,9 +81,8 @@ class Build : NukeBuild
                 .SetInformationalVersion(GitVersion.InformationalVersion)
                 .EnableNoRestore());
 
-            Log.Information("Current semver: {version}", GitVersion.MajorMinorPatch);
+            Log.Information("Current semver: {@Version}", GitVersion.MajorMinorPatch);
         });
-
 
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     Target BuildApiImageWithBuiltInContainerSupport => _ => _
@@ -98,7 +97,6 @@ class Build : NukeBuild
                 .SetConfiguration("Debug")
                 .SetPublishProfile("DefaultContainer"));
         });
-
 
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     Target BuildApiImageWithDockerfile => _ => _
@@ -128,8 +126,8 @@ class Build : NukeBuild
                     retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                     (ex, _, retryCount, _) =>
                     {
-                        Log.Warning($"Docker login exited with code: '{ex}'");
-                        Log.Information($"Attempting to login into GitHub Docker image registry. Try #{retryCount}");
+                        Log.Warning(ex, "Docker login was unsuccessful");
+                        Log.Information("Attempting to login into GitHub Docker image registry. Try #{RetryCount}", retryCount);
                     })
                 .Execute(() => DockerLogin(settings => settings
                     .SetServer(GitHubImageRegistry)
@@ -167,6 +165,6 @@ class Build : NukeBuild
             Git($"config user.name \"{GitAuthorUsername}\"");
 
             Git($"tag -a {GitVersion.FullSemVer} -m \"Release: '{GitVersion.FullSemVer}'\"");
-            Git($"push --follow-tags");
+            Git("push --follow-tags");
         });
 }
