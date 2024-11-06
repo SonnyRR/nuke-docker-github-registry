@@ -1,39 +1,5 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "properties": {
-    "Configuration": {
-      "type": "string",
-      "description": "Configuration to build - Default is 'Debug' (local) or 'Release' (server)",
-      "enum": [
-        "Debug",
-        "Release"
-      ]
-    },
-    "GitAuthorEmail": {
-      "type": "string",
-      "description": "The git author email, used for tagging release commits"
-    },
-    "GitAuthorUsername": {
-      "type": "string",
-      "description": "The git author username, used for tagging release commits"
-    },
-    "GitHubPersonalAccessToken": {
-      "type": "string",
-      "description": "The PAT used in order to push the Docker image to the container registry"
-    },
-    "GitHubUsername": {
-      "type": "string",
-      "description": "The GitHub user account that will be used to push the Docker image to the container registry"
-    },
-    "ImageName": {
-      "type": "string",
-      "description": "The docker image name"
-    },
-    "Solution": {
-      "type": "string",
-      "description": "Path to a solution file that is automatically loaded. Default is NukeSandbox.sln"
-    }
-  },
   "definitions": {
     "Host": {
       "type": "string",
@@ -135,5 +101,45 @@
       }
     }
   },
-  "$ref": "#/definitions/NukeBuild"
+  "allOf": [
+    {
+      "properties": {
+        "Configuration": {
+          "type": "string",
+          "description": "Configuration to build - Default is 'Debug' (local) or 'Release' (server)",
+          "enum": [
+            "Debug",
+            "Release"
+          ]
+        },
+        "GitAuthorEmail": {
+          "type": "string",
+          "description": "The git author email, used for tagging release commits"
+        },
+        "GitAuthorUsername": {
+          "type": "string",
+          "description": "The git author username, used for tagging release commits"
+        },
+        "GitHubPersonalAccessToken": {
+          "type": "string",
+          "description": "The PAT used in order to push the Docker image to the container registry"
+        },
+        "GitHubUsername": {
+          "type": "string",
+          "description": "The GitHub user account that will be used to push the Docker image to the container registry"
+        },
+        "ImageName": {
+          "type": "string",
+          "description": "The docker image name"
+        },
+        "Solution": {
+          "type": "string",
+          "description": "Path to a solution file that is automatically loaded. Default is NukeSandbox.sln"
+        }
+      }
+    },
+    {
+      "$ref": "#/definitions/NukeBuild"
+    }
+  ]
 }
