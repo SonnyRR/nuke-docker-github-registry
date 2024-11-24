@@ -105,6 +105,7 @@ class Build : NukeBuild
 	Target PushImagesToContainerRegistry => _ => _
 		.Description("Pushes built OCI images to a container registry.")
 		.OnlyWhenDynamic(() => GitRepository.IsOnMainOrMasterBranch())
+		.WhenSkipped(DependencyBehavior.Skip)
 		.DependsOn(BuildApiImageWithBuiltInContainerSupport, BuildApiImageWithDockerfile)
 		.Triggers(TagReleaseCommit)
 		.Requires(
@@ -170,6 +171,14 @@ class Build : NukeBuild
 			.SetTargetImage(tagWithSemver));
 
 		DockerPush(s => s.SetName(targetImageName));
-		DockerPush(s => s.SetName(tagWithSemver));
+
+		if (GitRepository.IsOnMainOrMasterBranch())
+		{
+			DockerTag(s => s
+				.SetSourceImage(imageName)
+				.SetTargetImage(targetImageName));
+
+			DockerPush(s => s.SetName(tagWithSemver));
+		}
 	}
 }
