@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageDownload Include="GitVersion.Tool" Version="[6.0.2]" />
+    <PackageDownload Include="GitVersion.Tool" Version="[6.0.5]" />
   </ItemGroup>
 
 </Project>
