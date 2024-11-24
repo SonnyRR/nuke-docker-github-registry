@@ -1,5 +1,4 @@
-using System;
-using System.Diagnostics.CodeAnalysis;
+using JetBrains.Annotations;
 using Nuke.Common;
 using Nuke.Common.Git;
 using Nuke.Common.IO;
@@ -10,6 +9,7 @@ using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Polly;
 using Serilog;
+using System;
 using static Nuke.Common.Tools.Docker.DockerTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using static Nuke.Common.Tools.Git.GitTasks;
@@ -19,13 +19,6 @@ class Build : NukeBuild
 {
     const string ApiAssemblyName = "MagicEightBall.API";
     const string GitHubImageRegistry = "docker.pkg.github.com";
-
-    public Build()
-    {
-        // Redirect output from STDERR to STDOUT.
-        DockerLogger = (_, message) => Log.Debug(message);
-        GitLogger = (_, message) => Log.Debug(message);
-    }
 
     public static int Main() => Execute<Build>(b => b.Compile);
 
@@ -84,21 +77,20 @@ class Build : NukeBuild
             Log.Information("Current semver: {@Version}", GitVersion.MajorMinorPatch);
         });
 
-    [SuppressMessage("ReSharper", "UnusedMember.Local")]
+    [UsedImplicitly]
     Target BuildApiImageWithBuiltInContainerSupport => _ => _
         .DependsOn(Compile)
         .Executes(() =>
         {
             DotNetPublish(c => c
                 .SetProject(ApiProject)
-                .SetProcessArgumentConfigurator(args => args
-                    .Add("--os linux")
-                    .Add("--arch x64"))
+                .SetOperatingSystem("linux")
+                .SetArchitecture("x64")
                 .SetConfiguration("Debug")
                 .SetPublishProfile("DefaultContainer"));
         });
 
-    [SuppressMessage("ReSharper", "UnusedMember.Local")]
+    [UsedImplicitly]
     Target BuildApiImageWithDockerfile => _ => _
         .DependsOn(Compile)
         .Executes(() =>
@@ -133,7 +125,7 @@ class Build : NukeBuild
                     .SetServer(GitHubImageRegistry)
                     .SetUsername(GitHubUsername)
                     .SetPassword(GitHubPersonalAccessToken)
-                    .DisableProcessLogOutput()));
+                    .DisableProcessOutputLogging()));
 
             var repositoryOwner = GitRepository.GetGitHubOwner();
             var repositoryName = GitRepository.GetGitHubName();
