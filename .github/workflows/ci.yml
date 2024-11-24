@@ -11,14 +11,14 @@ on:
   workflow_dispatch:
     
 env:
-  GitHubPersonalAccessToken: ${{ secrets.PERSONAL_ACCESS_TOKEN || 'dependabot_placeholder_pat' }}
-  GitHubUsername: ${{ secrets.USERNAME || 'dependabot_placeholder_username' }}
+  ContainerRegistryPAT: ${{ secrets.PERSONAL_ACCESS_TOKEN || 'dependabot_placeholder_pat' }}
+  ContainerRegistryUsername: ${{ secrets.USERNAME || 'dependabot_placeholder_username' }}
   GitAuthorUsername: 'Vasil Kotsev'
   GitAuthorEmail: '9307969+SonnyRR@users.noreply.github.com'
 
 jobs:
-  publish-built-in:
-    name: Publish API docker image with built-in container support
+  publish-images:
+    name: Publish API images to the container registry
     runs-on: ubuntu-latest
 
     steps:
@@ -32,29 +32,5 @@ jobs:
         with:
           dotnet-version: 9.x.x
 
-      - name: Build API image with built-in container support
-        run: ./build.sh BuildApiImageWithBuiltInContainerSupport
-        
-      - name: Publish image to GitHub container registry
-        run: ./build.sh PushImageToGitHubRegistry --ImageName magic-8-ball-api:built-in
-          
-  publish-dockerfile:
-    name: Publish API docker image built with Dockerfile
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 9.x.x
-
-      - name: Build API image with Dockerfile
-        run: ./build.sh BuildApiImageWithDockerfile
-
-      - name: Publish image to GitHub container registry
-        run: ./build.sh PushImageToGitHubRegistry
+      - name: Build & Push images to the container registry
+        run: ./build.sh PushImagesToContainerRegistry

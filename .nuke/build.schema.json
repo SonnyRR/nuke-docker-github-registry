@@ -28,7 +28,7 @@
         "BuildApiImageWithDockerfile",
         "Clean",
         "Compile",
-        "PushImageToGitHubRegistry",
+        "PushImagesToContainerRegistry",
         "Restore",
         "TagReleaseCommit"
       ]
@@ -112,6 +112,14 @@
             "Release"
           ]
         },
+        "ContainerRegistryPAT": {
+          "type": "string",
+          "description": "The PAT used in order to push the Docker image to the container registry"
+        },
+        "ContainerRegistryUsername": {
+          "type": "string",
+          "description": "The GitHub user account that will be used to push the Docker image to the container registry"
+        },
         "GitAuthorEmail": {
           "type": "string",
           "description": "The git author email, used for tagging release commits"
@@ -119,18 +127,6 @@
         "GitAuthorUsername": {
           "type": "string",
           "description": "The git author username, used for tagging release commits"
-        },
-        "GitHubPersonalAccessToken": {
-          "type": "string",
-          "description": "The PAT used in order to push the Docker image to the container registry"
-        },
-        "GitHubUsername": {
-          "type": "string",
-          "description": "The GitHub user account that will be used to push the Docker image to the container registry"
-        },
-        "ImageName": {
-          "type": "string",
-          "description": "The docker image name"
         },
         "Solution": {
           "type": "string",
