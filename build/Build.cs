@@ -104,10 +104,6 @@ class Build : NukeBuild
 	[UsedImplicitly]
 	Target PushImagesToContainerRegistry => _ => _
 		.Description("Pushes built OCI images to a container registry.")
-		.OnlyWhenDynamic(() =>
-			GitRepository.IsOnMainOrMasterBranch() ||
-			GitRepository.IsOnFeatureBranch() ||
-			GitRepository.IsOnDevelopBranch())
 		.WhenSkipped(DependencyBehavior.Skip)
 		.DependsOn(BuildApiImageWithBuiltInContainerSupport, BuildApiImageWithDockerfile)
 		.Triggers(TagReleaseCommit)
