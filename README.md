@@ -53,10 +53,10 @@ The aforementioned target will create a new image with the `dockerfile` tag: `ma
 You can write a custom `docker-compose.yml` file or just run it:
 ```sh
 # Image built with built-in container support
-docker run -d -p 5000:80 --name m8b magic-8-ball-api:built-in
+docker run -d -p 5000:8080 --name m8b magic-8-ball-api:built-in
 
 # Image built with dockerfile
-docker run -d -p 5000:80 --name m8b magic-8-ball-api:dockerfile
+docker run -d -p 5000:8080 --name m8b magic-8-ball-api:dockerfile
 ```
 
 After that you can navigate to `http://localhost:5000` and it will redirect you to the `swagger` documentation for the `API`.
