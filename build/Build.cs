@@ -56,11 +56,7 @@ class Build : NukeBuild
         .Executes(() => DotNetClean(c => c.SetProject(ApiProject)));
 
     Target Restore => _ => _
-        .Executes(() =>
-        {
-            DotNetRestore(s => s
-                .SetProjectFile(Solution));
-        });
+        .Executes(() => DotNetRestore(s => s.SetProjectFile(Solution)));
 
     Target Compile => _ => _
         .DependsOn(Clean, Restore)
@@ -121,7 +117,7 @@ class Build : NukeBuild
                         Log.Warning(ex, "Docker login was unsuccessful");
                         Log.Information("Attempting to login into GitHub Docker image registry. Try #{RetryCount}", retryCount);
                     })
-                .Execute(() => DockerLogin(settings => settings
+                .Execute(() => DockerLogin(s => s
                     .SetServer(GitHubImageRegistry)
                     .SetUsername(GitHubUsername)
                     .SetPassword(GitHubPersonalAccessToken)
@@ -132,17 +128,17 @@ class Build : NukeBuild
             var targetImageName =
                 $"{GitHubImageRegistry}/{repositoryOwner.ToLowerInvariant()}/{repositoryName}/{ImageName}";
 
-            DockerTag(settings => settings
+            DockerTag(s => s
                 .SetSourceImage(ImageName)
                 .SetTargetImage(targetImageName));
 
             var tagWithSemver = targetImageName + '-' + GitVersion.MajorMinorPatch;
-            DockerTag(settings => settings
+            DockerTag(s => s
                 .SetSourceImage(ImageName)
                 .SetTargetImage(tagWithSemver));
 
-            DockerPush(settings => settings.SetName(targetImageName));
-            DockerPush(settings => settings.SetName(tagWithSemver));
+            DockerPush(s => s.SetName(targetImageName));
+            DockerPush(s => s.SetName(tagWithSemver));
         });
 
     Target TagReleaseCommit => _ => _
