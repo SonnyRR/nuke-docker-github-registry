@@ -1,20 +1,24 @@
-# NUKE + Docker Image + GitHub Image Registry = ♥
+# NUKE + Docker Image + GitHub Container Registry = ♥
 ![ci workflow status](https://github.com/SonnyRR/nuke-docker-github-registry/actions/workflows/ci.yml/badge.svg)
 
-This is a simple project utilizing the NUKE automated build system and Docker that serves as an example of how to push Docker Images to the GitHub Image registry.
+This is a simple project utilizing the NUKE automated build system and Docker that serves as an example of how to push Docker Images to the GitHub Container registry.
 
 Check out NUKE:
 https://github.com/nuke-build/nuke
 
 
 ## 💭 About
-ℹ The sample API used in this repo is a `.NET 8 WebAPI` project utilizing the newly introduced `built-in container support`. I've also included a `dockerfile` which is also utilized in the `CI` pipeline. It's a magic 8-ball, that when prompted with a yes/no question will give you a random answer.
+ℹ The sample API used in this repo is a `.NET 9 WebAPI` project utilizing the newly introduced `built-in container support`. 
+I've also included a `dockerfile` which is also utilized in the `CI` pipeline. It's a magic 8-ball, that when prompted with a yes/no question will give you a random answer.
 
 ## 🏗 NUKE Build Project
-The automated build project contains the necessary targets to `clean`, `restore`, `compile`, `build` and `publish` the docker images. You can view the target definitions in the `Build.cs` file and use it as a reference for your projects. It also contains a setup for `GitVersion` which lets us use semantic versioning when we tag the `git` commits & `docker` images.
+The automated build project contains the necessary targets to `clean`, `restore`, `compile`, `build` and `publish` the docker images. 
+You can view the target definitions in the `Build.cs` file and use it as a reference for your projects. 
+It also contains a setup for `GitVersion` which lets us use semantic versioning when we tag the `git` commits & `docker` images.
 
 ## 📦 CI Pipeline
-The artifacts produced by the `GitHub Actions` CI pipeline are two images with different tags. One of the images is built with the traditional `Dockerfile`, while the other one utilizes the newly introduced `built-in container support` via the `Microsoft.NET.Build.Containers` NuGet package.
+The artifacts produced by the `GitHub Actions` CI pipeline are two images with different tags. 
+One of the images is built with the traditional multi-stage `Dockerfile`, while the other one utilizes the newly introduced `built-in` container support
 
 You can view the whole pipeline config here: `.github/workflows/ci.yml` and use it as a reference for your projects.
 
@@ -50,7 +54,6 @@ The aforementioned target will create a new image with the `dockerfile` tag: `ma
 
 
 ## 🏃‍♀️ Run the containers
-You can write a custom `docker-compose.yml` file or just run it:
 ```sh
 # Image built with built-in container support
 docker run -d -p 5000:8080 --name m8b magic-8-ball-api:built-in
