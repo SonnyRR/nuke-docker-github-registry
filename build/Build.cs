@@ -160,16 +160,13 @@ class Build : NukeBuild
 		var targetImageName =
 			$"{ContainerRegistry}/{repositoryOwner.ToLowerInvariant()}/{repositoryName}/{imageName}";
 
-		DockerTag(s => s
-			.SetSourceImage(imageName)
-			.SetTargetImage(targetImageName));
-
 		var tagWithSemver = targetImageName + '-' + GitVersion.FullSemVer;
+
 		DockerTag(s => s
 			.SetSourceImage(imageName)
 			.SetTargetImage(tagWithSemver));
 
-		DockerPush(s => s.SetName(targetImageName));
+		DockerPush(s => s.SetName(tagWithSemver));
 
 		if (GitRepository.IsOnMainOrMasterBranch())
 		{
@@ -177,7 +174,7 @@ class Build : NukeBuild
 				.SetSourceImage(imageName)
 				.SetTargetImage(targetImageName));
 
-			DockerPush(s => s.SetName(tagWithSemver));
+			DockerPush(s => s.SetName(targetImageName));
 		}
 	}
 }
