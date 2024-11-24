@@ -70,7 +70,7 @@ class Build : NukeBuild
 				.SetInformationalVersion(GitVersion.InformationalVersion)
 				.EnableNoRestore());
 
-			Log.Information("Current semver: {@Version}", GitVersion.MajorMinorPatch);
+			Log.Information("Current semver: {@Version}", GitVersion.FullSemVer);
 		});
 
 	[UsedImplicitly]
@@ -164,7 +164,7 @@ class Build : NukeBuild
 			.SetSourceImage(imageName)
 			.SetTargetImage(targetImageName));
 
-		var tagWithSemver = targetImageName + '-' + GitVersion.MajorMinorPatch;
+		var tagWithSemver = targetImageName + '-' + GitVersion.FullSemVer;
 		DockerTag(s => s
 			.SetSourceImage(imageName)
 			.SetTargetImage(tagWithSemver));
