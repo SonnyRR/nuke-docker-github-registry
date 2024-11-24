@@ -127,10 +127,6 @@
         "GitAuthorUsername": {
           "type": "string",
           "description": "The git author username, used for tagging release commits"
-        },
-        "Solution": {
-          "type": "string",
-          "description": "Path to a solution file that is automatically loaded. Default is NukeSandbox.sln"
         }
       }
     },

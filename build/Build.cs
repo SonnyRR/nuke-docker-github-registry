@@ -25,9 +25,6 @@ class Build : NukeBuild
 
 	public static int Main() => Execute<Build>(b => b.Compile);
 
-	[Solution("NukeSandbox.sln", SuppressBuildProjectCheck = true)]
-	readonly Solution Solution;
-
 	[GitRepository]
 	readonly GitRepository GitRepository;
 
@@ -56,7 +53,7 @@ class Build : NukeBuild
 		.Executes(() => DotNetClean(c => c.SetProject(ApiProject)));
 
 	Target Restore => _ => _
-		.Executes(() => DotNetRestore(s => s.SetProjectFile(Solution)));
+		.Executes(() => DotNetRestore(s => s.SetProjectFile(ApiProject)));
 
 	Target Compile => _ => _
 		.DependsOn(Clean, Restore)
