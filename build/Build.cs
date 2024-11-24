@@ -18,7 +18,7 @@ using static Nuke.Common.Tools.GitHub.GitHubTasks;
 class Build : NukeBuild
 {
     const string ApiAssemblyName = "MagicEightBall.API";
-    const string GitHubImageRegistry = "docker.pkg.github.com";
+    const string ContainerRegistry = "ghcr.io";
 
     public static int Main() => Execute<Build>(b => b.Compile);
 
@@ -118,7 +118,7 @@ class Build : NukeBuild
                         Log.Information("Attempting to login into GitHub Docker image registry. Try #{RetryCount}", retryCount);
                     })
                 .Execute(() => DockerLogin(s => s
-                    .SetServer(GitHubImageRegistry)
+                    .SetServer(ContainerRegistry)
                     .SetUsername(GitHubUsername)
                     .SetPassword(GitHubPersonalAccessToken)
                     .DisableProcessOutputLogging()));
@@ -126,7 +126,7 @@ class Build : NukeBuild
             var repositoryOwner = GitRepository.GetGitHubOwner();
             var repositoryName = GitRepository.GetGitHubName();
             var targetImageName =
-                $"{GitHubImageRegistry}/{repositoryOwner.ToLowerInvariant()}/{repositoryName}/{ImageName}";
+                $"{ContainerRegistry}/{repositoryOwner.ToLowerInvariant()}/{repositoryName}/{ImageName}";
 
             DockerTag(s => s
                 .SetSourceImage(ImageName)
