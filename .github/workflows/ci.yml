@@ -30,7 +30,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.x.x
+          dotnet-version: 9.x.x
 
       - name: Build API image with built-in container support
         run: ./build.sh BuildApiImageWithBuiltInContainerSupport
@@ -51,7 +51,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.x.x
+          dotnet-version: 9.x.x
 
       - name: Build API image with Dockerfile
         run: ./build.sh BuildApiImageWithDockerfile
