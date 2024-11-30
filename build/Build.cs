@@ -103,6 +103,7 @@ class Build : NukeBuild
 		.Description("Pushes built OCI images to a container registry.")
 		.WhenSkipped(DependencyBehavior.Skip)
 		.DependsOn(BuildApiImageWithBuiltInContainerSupport, BuildApiImageWithDockerfile)
+		.OnlyWhenDynamic(() => GitRepository.IsOnMainOrMasterBranch())
 		.Triggers(TagReleaseCommit)
 		.Requires(
 			() => ContainerRegistryPAT,
