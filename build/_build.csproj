@@ -12,14 +12,6 @@
   <ItemGroup>
     <PackageReference Include="Nuke.Common" Version="9.0.4" />
     <PackageReference Include="Polly" Version="8.5.2" />
-    <PackageReference Include="Roslynator.Analyzers" Version="4.12.11">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.6.0.109712">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
