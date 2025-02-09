@@ -4,7 +4,7 @@
         <TargetFramework>net9.0</TargetFramework>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:9.0</ContainerBaseImage>
+        <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:9.0-noble-chiseled</ContainerBaseImage>
         <ContainerRepository>magic-8-ball-api</ContainerRepository>
         <ContainerImageTag>built-in</ContainerImageTag>
     </PropertyGroup>
