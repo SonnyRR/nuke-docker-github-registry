@@ -33,6 +33,7 @@ class Build : NukeBuild
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
+    [Secret]
     [Parameter("The PAT used in order to push the Docker image to the container registry")]
     readonly string ContainerRegistryPAT;
 

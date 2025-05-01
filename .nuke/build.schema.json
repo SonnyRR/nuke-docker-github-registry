@@ -114,7 +114,8 @@
         },
         "ContainerRegistryPAT": {
           "type": "string",
-          "description": "The PAT used in order to push the Docker image to the container registry"
+          "description": "The PAT used in order to push the Docker image to the container registry",
+          "default": "Secrets must be entered via 'nuke :secrets [profile]'"
         },
         "ContainerRegistryUsername": {
           "type": "string",
