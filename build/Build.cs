@@ -1,3 +1,4 @@
+using System;
 using JetBrains.Annotations;
 using Nuke.Common;
 using Nuke.Common.Git;
@@ -8,7 +9,6 @@ using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Polly;
 using Serilog;
-using System;
 using static Nuke.Common.Tools.Docker.DockerTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using static Nuke.Common.Tools.Git.GitTasks;
@@ -18,9 +18,9 @@ class Build : NukeBuild
 {
     const string ApiAssemblyName = "MagicEightBall.API";
     const string ContainerRegistry = "ghcr.io";
-    const string Image = "magic-8-ball-api";
-    const string BuiltInImageTag = Image + ":built-in";
-    const string DockerfileImageTag = Image + ":dockerfile";
+    const string BaseImage = "magic-8-ball-api";
+    const string BuiltInImage = BaseImage + ":built-in";
+    const string DockerfileImage = BaseImage + ":dockerfile";
 
     public static int Main() => Execute<Build>(b => b.Compile);
 
@@ -90,11 +90,10 @@ class Build : NukeBuild
         .Executes(() =>
         {
             DockerBuild(s => s
-                .SetProcessEnvironmentVariable("DOCKER_BUILDKIT", "1")
                 .SetProcessWorkingDirectory(RootDirectory)
                 .SetFile(ApiProject / "Dockerfile")
                 .SetPath(".")
-                .SetTag(DockerfileImageTag));
+                .SetTag(DockerfileImage));
         });
 
     [UsedImplicitly]
@@ -109,8 +108,8 @@ class Build : NukeBuild
             () => ContainerRegistryUsername)
         .Executes(() =>
         {
-            PublishImage(DockerfileImageTag);
-            PublishImage(BuiltInImageTag);
+            PublishImage(DockerfileImage);
+            PublishImage(BuiltInImage);
         });
 
     Target TagReleaseCommit => _ => _
@@ -128,14 +127,13 @@ class Build : NukeBuild
             Git("push --follow-tags");
         });
 
-
     /// <summary>
     /// Publishes an OCI image to a given container registry.
     /// </summary>
     /// <param name="imageName">The image tag, that needs to be pushed.</param>
     private void PublishImage(string imageName)
     {
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(imageName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(imageName);
 
         Policy
             .Handle<Exception>()
@@ -154,23 +152,16 @@ class Build : NukeBuild
 
         var repositoryOwner = GitRepository.GetGitHubOwner();
         var repositoryName = GitRepository.GetGitHubName();
-        var targetImageName =
-            $"{ContainerRegistry}/{repositoryOwner.ToLowerInvariant()}/{repositoryName}/{imageName}";
+        var targetImageName = $"{ContainerRegistry}/{repositoryOwner.ToLowerInvariant()}/{repositoryName}/{imageName}";
 
         var tagWithSemver = targetImageName + '-' + GitVersion.FullSemVer;
 
-        DockerTag(s => s
-            .SetSourceImage(imageName)
-            .SetTargetImage(tagWithSemver));
-
+        DockerTag(s => s.SetSourceImage(imageName).SetTargetImage(tagWithSemver));
         DockerPush(s => s.SetName(tagWithSemver));
 
         if (GitRepository.IsOnMainOrMasterBranch())
         {
-            DockerTag(s => s
-                .SetSourceImage(imageName)
-                .SetTargetImage(targetImageName));
-
+            DockerTag(s => s.SetSourceImage(imageName).SetTargetImage(targetImageName));
             DockerPush(s => s.SetName(targetImageName));
         }
     }
