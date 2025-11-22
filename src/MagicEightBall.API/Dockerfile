@@ -1,8 +1,8 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:9.0-noble-chiseled AS base
+﻿FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled AS base
 WORKDIR /app
 EXPOSE 80
 
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY ["src/MagicEightBall.API/MagicEightBall.API.csproj", "MagicEightBall.API/"]
 RUN dotnet restore "MagicEightBall.API/MagicEightBall.API.csproj"
