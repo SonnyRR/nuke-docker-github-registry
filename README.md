@@ -21,7 +21,7 @@ It also contains a setup for `GitVersion` which lets us use semantic versioning 
 ## 📦 CI Pipeline
 
 The artifacts produced by the `GitHub Actions` CI pipeline are two images with different tags.
-One of the images is built with the traditional multi-stage `Dockerfile`, while the other one utilizes the newly introduced `built-in` container support
+One of the images is built with the traditional multi-stage `Dockerfile`, while the other one utilizes the `built-in` container support
 
 You can view the whole pipeline config here: `.github/workflows/ci.yml` and use it as a reference for your projects.
 
