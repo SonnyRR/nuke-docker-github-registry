@@ -10,16 +10,15 @@ on:
 
   workflow_dispatch:
 
-env:
-  ContainerRegistryPAT: ${{ secrets.PERSONAL_ACCESS_TOKEN || 'dependabot_placeholder_pat' }}
-  ContainerRegistryUsername: ${{ secrets.USERNAME || 'dependabot_placeholder_username' }}
-  GitAuthorUsername: 'Vasil Kotsev'
-  GitAuthorEmail: '9307969+SonnyRR@users.noreply.github.com'
+concurrency:
+  group: ${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.ref_name || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  publish-images:
-    name: Publish API images to the container registry
+  build-and-publish-image:
+    name: Build & Push OCI image to container registry
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository
@@ -27,5 +26,20 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Build & Push images to the container registry
-        run: ./build.sh PushImagesToContainerRegistry
+      - name: Cache dependencies
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae
+        with:
+          path: |
+            .nuke/temp
+            ~/.nuget/packages
+          key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj', '**/Directory.Packages.props') }}
+
+      - name: NUKE
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: true
+          NUKE_TELEMETRY_OPTOUT: true
+          ContainerRegistryPAT: ${{ secrets.PERSONAL_ACCESS_TOKEN || 'placeholder' }}
+          ContainerRegistryUsername: ${{ secrets.USERNAME || 'placeholder' }}
+          GitAuthorUsername: 'Vasil Kotsev'
+          GitAuthorEmail: '9307969+SonnyRR@users.noreply.github.com'
+        run: ./build.sh PushImage

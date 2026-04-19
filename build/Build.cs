@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using JetBrains.Annotations;
 using Nuke.Common;
 using Nuke.Common.Git;
@@ -7,6 +8,7 @@ using Nuke.Common.Tooling;
 using Nuke.Common.Tools.Docker;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
+using Nuke.Common.Utilities;
 using Polly;
 using Serilog;
 using static Nuke.Common.Tools.Docker.DockerTasks;
@@ -18,9 +20,7 @@ class Build : NukeBuild
 {
     const string ApiAssemblyName = "MagicEightBall.API";
     const string ContainerRegistry = "ghcr.io";
-    const string BaseImage = "magic-8-ball-api";
-    const string BuiltInImage = BaseImage + ":built-in";
-    const string DockerfileImage = BaseImage + ":dockerfile";
+    const string ImageName = "magic-8-ball-api";
 
     public static int Main() => Execute<Build>(b => b.Compile);
 
@@ -48,14 +48,21 @@ class Build : NukeBuild
 
     readonly AbsolutePath ApiProject = RootDirectory / "src" / ApiAssemblyName;
 
+    private bool ContainsPlaceholderCredentialsForGHCR
+        => new[] { ContainerRegistryPAT, ContainerRegistryUsername }
+            .Any(x => x == "placeholder");
+
     Target Clean => _ => _
+        .Description("Cleans-up .NET build artifacts.")
         .Before(Restore)
         .Executes(() => DotNetClean(c => c.SetProject(ApiProject)));
 
     Target Restore => _ => _
+        .Description("Restores NuGet project dependencies.")
         .Executes(() => DotNetRestore(s => s.SetProjectFile(ApiProject)));
 
     Target Compile => _ => _
+        .Description("Compiles the solution.")
         .DependsOn(Clean, Restore)
         .Executes(() =>
         {
@@ -71,21 +78,7 @@ class Build : NukeBuild
         });
 
     [UsedImplicitly]
-    Target BuildApiImageWithBuiltInContainerSupport => _ => _
-        .Description("Builds the API image with the built-in container support from dotnet.")
-        .DependsOn(Compile)
-        .Executes(() =>
-        {
-            DotNetPublish(c => c
-                .SetProject(ApiProject)
-                .SetOperatingSystem("linux")
-                .SetArchitecture("x64")
-                .SetConfiguration("Debug")
-                .SetPublishProfile("DefaultContainer"));
-        });
-
-    [UsedImplicitly]
-    Target BuildApiImageWithDockerfile => _ => _
+    Target BuildImage => _ => _
         .Description("Builds the API image with a multi-stage build through a Dockerfile.")
         .DependsOn(Compile)
         .Executes(() =>
@@ -94,23 +87,52 @@ class Build : NukeBuild
                 .SetProcessWorkingDirectory(RootDirectory)
                 .SetFile(ApiProject / "Dockerfile")
                 .SetPath(".")
-                .SetTag(DockerfileImage));
+                .SetTag(ImageName));
         });
 
     [UsedImplicitly]
-    Target PushImagesToContainerRegistry => _ => _
-        .Description("Pushes built OCI images to a container registry.")
-        .WhenSkipped(DependencyBehavior.Skip)
-        .DependsOn(BuildApiImageWithBuiltInContainerSupport, BuildApiImageWithDockerfile)
-        .OnlyWhenDynamic(() => GitRepository.IsOnMainOrMasterBranch())
+    Target PushImage => _ => _
+        .Description("Pushes the OCI image to a container registry.")
+        .OnlyWhenDynamic(() => !ContainsPlaceholderCredentialsForGHCR)
+        .WhenSkipped(DependencyBehavior.Execute)
+        .When(ContainsPlaceholderCredentialsForGHCR, t => t.WhenSkipped(DependencyBehavior.Skip))
+        .DependsOn(BuildImage)
         .Triggers(TagReleaseCommit)
         .Requires(
             () => ContainerRegistryPAT,
             () => ContainerRegistryUsername)
         .Executes(() =>
         {
-            PublishImage(DockerfileImage);
-            PublishImage(BuiltInImage);
+            Policy
+                .Handle<Exception>()
+                .WaitAndRetry(5,
+                    retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    (ex, _, retryCount, _) =>
+                    {
+                        Log.Warning(ex, "Docker login was unsuccessful");
+                        Log.Information("Attempting to login into GitHub Docker image registry. Try #{RetryCount}.", retryCount);
+                    })
+                .Execute(() => DockerLogin(s => s
+                    .SetServer(ContainerRegistry)
+                    .SetUsername(ContainerRegistryUsername)
+                    .SetPassword(ContainerRegistryPAT)
+                    .DisableProcessOutputLogging()));
+
+            var repositoryOwner = GitRepository.GetGitHubOwner();
+            var repositoryName = GitRepository.GetGitHubName();
+            var targetImageName = $"{ContainerRegistry}/{repositoryOwner.ToLowerInvariant()}/{repositoryName}/{ImageName}";
+
+            var semverImageTag = targetImageName + '-' + GitVersion.FullSemVer.ToLowerInvariant();
+
+            DockerTag(s => s.SetSourceImage(ImageName).SetTargetImage(semverImageTag));
+            DockerPush(s => s.SetName(semverImageTag));
+
+            if (GitRepository.IsOnMainOrMasterBranch())
+            {
+                var latestImageTag = targetImageName + ":latest";
+                DockerTag(s => s.SetSourceImage(ImageName).SetTargetImage(latestImageTag));
+                DockerPush(s => s.SetName(latestImageTag));
+            }
         });
 
     Target TagReleaseCommit => _ => _
@@ -127,43 +149,4 @@ class Build : NukeBuild
             Git($"tag -a {GitVersion.FullSemVer} -m \"Release: '{GitVersion.FullSemVer}'\"");
             Git("push --follow-tags");
         });
-
-    /// <summary>
-    /// Publishes an OCI image to a given container registry.
-    /// </summary>
-    /// <param name="imageName">The image tag, that needs to be pushed.</param>
-    private void PublishImage(string imageName)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(imageName);
-
-        Policy
-            .Handle<Exception>()
-            .WaitAndRetry(5,
-                retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                (ex, _, retryCount, _) =>
-                {
-                    Log.Warning(ex, "Docker login was unsuccessful");
-                    Log.Information("Attempting to login into GitHub Docker image registry. Try #{RetryCount}", retryCount);
-                })
-            .Execute(() => DockerLogin(s => s
-                .SetServer(ContainerRegistry)
-                .SetUsername(ContainerRegistryUsername)
-                .SetPassword(ContainerRegistryPAT)
-                .DisableProcessOutputLogging()));
-
-        var repositoryOwner = GitRepository.GetGitHubOwner();
-        var repositoryName = GitRepository.GetGitHubName();
-        var targetImageName = $"{ContainerRegistry}/{repositoryOwner.ToLowerInvariant()}/{repositoryName}/{imageName}";
-
-        var tagWithSemver = targetImageName + '-' + GitVersion.FullSemVer;
-
-        DockerTag(s => s.SetSourceImage(imageName).SetTargetImage(tagWithSemver));
-        DockerPush(s => s.SetName(tagWithSemver));
-
-        if (GitRepository.IsOnMainOrMasterBranch())
-        {
-            DockerTag(s => s.SetSourceImage(imageName).SetTargetImage(targetImageName));
-            DockerPush(s => s.SetName(targetImageName));
-        }
-    }
 }

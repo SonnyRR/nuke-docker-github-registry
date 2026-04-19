@@ -24,11 +24,10 @@
     "ExecutableTarget": {
       "type": "string",
       "enum": [
-        "BuildApiImageWithBuiltInContainerSupport",
-        "BuildApiImageWithDockerfile",
+        "BuildImage",
         "Clean",
         "Compile",
-        "PushImagesToContainerRegistry",
+        "PushImage",
         "Restore",
         "TagReleaseCommit"
       ]

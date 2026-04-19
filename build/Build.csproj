@@ -15,13 +15,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\.github\dependabot.yml">
-      <Link>ci\dependabot.yml</Link>
+    <Content Include="../.github/workflows/ci.yml">
+      <Link>ci/workflows/ci.yml</Link>
+    </Content>
+    <Content Include="../.github/dependabot.yml">
+      <Link>ci/dependabot.yml</Link>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageDownload Include="GitVersion.Tool" Version="[6.5.0]" />
+    <PackageDownload Include="GitVersion.Tool" Version="[6.7.0]" />
   </ItemGroup>
 
 </Project>
