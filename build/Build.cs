@@ -122,7 +122,7 @@ class Build : NukeBuild
             var repositoryName = GitRepository.GetGitHubName();
             var targetImageName = $"{ContainerRegistry}/{repositoryOwner.ToLowerInvariant()}/{repositoryName}/{ImageName}";
 
-            var semverImageTag = targetImageName + '-' + GitVersion.FullSemVer.ToLowerInvariant();
+            var semverImageTag = targetImageName + ':' + GitVersion.FullSemVer.ToLowerInvariant();
 
             DockerTag(s => s.SetSourceImage(ImageName).SetTargetImage(semverImageTag));
             DockerPush(s => s.SetName(semverImageTag));
