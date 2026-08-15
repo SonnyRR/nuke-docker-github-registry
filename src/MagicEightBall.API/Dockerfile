@@ -8,7 +8,7 @@ ENV \
     LC_ALL=en_US.UTF-8 \
     LANG=en_US.UTF-8
 
-RUN apk add --no-cache icu-data-full=76.1-r1 icu-libs=76.1-r1
+RUN apk add --no-cache icu-data-full=78.1-r0 icu-libs=78.1-r0
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 WORKDIR /src
