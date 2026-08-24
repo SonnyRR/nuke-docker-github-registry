@@ -1,10 +1,10 @@
-using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Scalar.AspNetCore;
+using System.Security.Cryptography;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,14 +38,12 @@ var possibleAnswers = new[]
     "It is decidedly so."
 };
 
-var random = new Random();
-
 app.MapPost("/api/question/ask", (string q) =>
 {
     if (string.IsNullOrWhiteSpace(q))
         return Results.BadRequest();
 
-    var answer = possibleAnswers[random.Next(possibleAnswers.Length - 1)];
+    var answer = possibleAnswers[RandomNumberGenerator.GetInt32(possibleAnswers.Length)];
     return Results.Ok(answer);
 })
 .WithName("AskQuestion")
