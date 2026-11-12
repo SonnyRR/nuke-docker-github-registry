@@ -2,6 +2,11 @@
 
 ![ci workflow status](https://github.com/SonnyRR/nuke-docker-github-registry/actions/workflows/ci.yml/badge.svg)
 
+> [!WARNING]
+> ⚠ This repository has been archived and is no longer maintained. NUKE is no longer actively maintained, so this project is preserved as-is for reference only — no further updates, bug fixes, or support will be provided.
+>
+> 🔁 NUKE users should migrate to [Fallout](https://github.com/Fallout-build/Fallout), the drop-in replacement for NUKE. See the [official migration guide](https://github.com/Fallout-build/Fallout/blob/main/docs/Migration/from-nuke.md) for step-by-step instructions (short version: `dotnet tool install -g Fallout.Migrate` and run `fallout-migrate` in your existing NUKE repo).
+
 This is a simple project utilizing the NUKE automated build system and Docker that serves as an example of how to push Docker Images to the GitHub Container registry.
 
 Check out NUKE:
